@@ -44,6 +44,7 @@ const XR = { 'X-Requested-With': 'fetch' };
 
   r = await req(port, 'GET', '/farmacia/declaracao', { cookie }); assert.strictEqual(r.status, 200); assert.ok(r.body.includes('/farmacia/assets/sync.js') && !r.body.includes('__BASE__')); t('declaracao com sync.js e base path');
   r = await req(port, 'GET', '/farmacia/rotinas', { cookie }); assert.strictEqual(r.status, 200); assert.ok(r.body.includes('/farmacia/assets/sync.js')); t('rotinas');
+  assert.ok(!r.body.includes('claude.ai/artifact')); assert.ok(r.body.includes('href="/farmacia/declaracao"')); t('rotinas aponta para a declaração do próprio sistema');
   r = await req(port, 'GET', '/farmacia/', { cookie }); assert.strictEqual(r.headers.location, '/farmacia/declaracao'); t('/farmacia/ logado -> declaracao');
 
   // API de dados
