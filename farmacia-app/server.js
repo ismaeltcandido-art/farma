@@ -22,8 +22,8 @@ function main() {
   const port = Number(process.env.PORT || 3000);
   let app = null;
   try {
-    const { createApp } = require('./app');
-    if (typeof createApp !== 'function') throw new Error('app.js está vazio ou incompleto');
+    const { createApp } = require('./core');
+    if (typeof createApp !== 'function') throw new Error('core.js está vazio ou incompleto');
     app = createApp(process.env);
   } catch (e) {
     // Configuração/arquivo inválido: liga mesmo assim, mostra aviso simples ao público
