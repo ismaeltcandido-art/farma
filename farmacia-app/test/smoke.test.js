@@ -2,7 +2,7 @@
 // Teste de fumaça com banco em memória (DB_DRIVER=memory). Rode: npm test
 const assert = require('assert');
 const http = require('http');
-const { createApp } = require('../server');
+const { createApp } = require('../app');
 
 function req(port, method, path, { body, cookie, headers = {} } = {}) {
   return new Promise((resolve, reject) => {
