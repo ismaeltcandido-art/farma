@@ -14,7 +14,7 @@
   var versions = {};   // versão conhecida de cada chave no servidor
   var pending = {};    // k -> {del:bool, v:string}
   var timers = {}, sending = {};
-  var blocked = false, user = '';
+  var blocked = false, user = '', role = '';
 
   // ---------- carga inicial (síncrona, para as páginas já lerem os dados do servidor) ----------
   var xhr = new XMLHttpRequest();
@@ -25,6 +25,7 @@
   var data;
   try { data = JSON.parse(xhr.responseText); } catch (e) { return fatal('Resposta inválida do servidor.'); }
   user = data.user || '';
+  role = data.role || '';
   // O servidor é a fonte da verdade: descarta qualquer resto local antigo.
   for (var i = localStorage.length - 1; i >= 0; i--) {
     var lk = localStorage.key(i);
@@ -34,6 +35,8 @@
     realSet.call(localStorage, k, data.items[k].v);
     versions[k] = data.items[k].version;
   });
+
+  window.FARM = { user: user, role: role, name: data.name || '', base: BASE };
 
   // ---------- intercepta gravações ----------
   Storage.prototype.setItem = function (k, v) {
@@ -151,9 +154,13 @@
     pill = document.createElement('div'); pill.id = 'fsync'; pill.setAttribute('data-s', 'saved');
     var here = location.pathname.replace(/\/+$/, '');
     function link(text, href) { var a = document.createElement('a'); a.textContent = text; a.href = href; if (here === href) a.style.fontWeight = '700'; return a; }
+    pill.appendChild(link('Módulos', BASE + '/modulos'));
     pill.appendChild(link('Declarações', BASE + '/declaracao'));
     pill.appendChild(link('Rotinas', BASE + '/rotinas'));
-    var bk = link('Backup', BASE + '/api/backup'); bk.setAttribute('download', ''); pill.appendChild(bk);
+    if (role === 'admin') {
+      pill.appendChild(link('Usuários', BASE + '/usuarios'));
+      var bk = link('Backup', BASE + '/api/backup'); bk.setAttribute('download', ''); pill.appendChild(bk);
+    }
     var out = document.createElement('button'); out.textContent = 'Sair' + (user ? ' (' + user + ')' : '');
     out.onclick = function () {
       if (Object.keys(pending).length && !confirm('Há alterações ainda sendo salvas. Sair mesmo assim?')) return;

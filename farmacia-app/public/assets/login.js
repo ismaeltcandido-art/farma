@@ -12,7 +12,7 @@
       body: JSON.stringify({ username: form.u.value, password: form.p.value })
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
-        if (res.ok) location.assign(BASE + '/declaracao');
+        if (res.ok) location.assign(BASE + '/modulos');
         else { err.textContent = res.j.error || 'Falha ao entrar'; btn.disabled = false; }
       }).catch(function () { err.textContent = 'Sem conexão com o servidor'; btn.disabled = false; });
   });

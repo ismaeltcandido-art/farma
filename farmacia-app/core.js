@@ -25,6 +25,9 @@ const SESSION_COOKIE = 'farm_session';
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 horas
 const MAX_BODY = 8 * 1024 * 1024;            // logo/assinatura em base64 podem ser grandes
 const KEY_RE = /^farm_[a-z0-9_]{1,60}$/;
+const ROLES = ['admin', 'funcionario'];
+const USERNAME_RE = /^[a-z0-9._-]{3,60}$/;
+const MIN_PASSWORD = 8;
 
 // ---------- utilitários ----------
 function b64u(buf) { return Buffer.from(buf).toString('base64url'); }
@@ -159,6 +162,17 @@ function createApp(env = process.env) {
     const t = parseCookies(req.headers.cookie)[SESSION_COOKIE];
     return unsign(SECRET, t);
   }
+  // Sessão assinada + usuário ainda existente e ativo (desativar alguém vale na hora).
+  async function currentUser(req) {
+    const sess = getSession(req);
+    if (!sess) return null;
+    const u = await db.getUserById(sess.uid);
+    if (!u || !u.active || u.username !== sess.u) return null;
+    return { id: u.id, username: u.username, name: u.name || '', role: u.role };
+  }
+  const publicUser = u => ({ id: u.id, username: u.username, name: u.name, role: u.role });
+  function validPassword(pw) { return typeof pw === 'string' && pw.length >= MIN_PASSWORD && pw.length <= 200; }
+
   // Proteção CSRF: escritas exigem cabeçalho customizado (navegadores não o enviam em formulários cross-site).
   function csrfOk(req) { return req.headers['x-requested-with'] === 'fetch'; }
 
@@ -185,7 +199,7 @@ function createApp(env = process.env) {
       catch (_) { return json(res, 503, { ok: false }); }
     }
     if (p === '/login' && method === 'GET') {
-      if (getSession(req)) return redirect(res, BASE + '/declaracao');
+      if (await currentUser(req)) return redirect(res, BASE + '/modulos');
       return send(res, 200, template('login.html'), 'text/html; charset=utf-8');
     }
     if (p === '/api/login' && method === 'POST') {
@@ -197,38 +211,135 @@ function createApp(env = process.env) {
       if (throttled(key)) return json(res, 429, { error: 'Muitas tentativas. Aguarde 15 minutos.' });
       const user = username ? await db.getUser(username) : null;
       // verifica sempre (mesmo sem usuário) para não revelar quais usuários existem pelo tempo de resposta
-      const ok = verifyPassword(password, user ? user.password_hash : 'scrypt$16384$00$00') && !!user;
+      const ok = verifyPassword(password, user ? user.password_hash : 'scrypt$16384$00$00') && !!user && !!user.active;
       if (!ok) { failAttempt(key); return json(res, 401, { error: 'Usuário ou senha incorretos' }); }
       attempts.delete(key);
       const token = sign(SECRET, { uid: user.id, u: user.username, exp: Date.now() + SESSION_TTL_MS });
-      return json(res, 200, { ok: true, user: user.username }, { 'Set-Cookie': sessionCookie(token, SESSION_TTL_MS / 1000) });
+      return json(res, 200, { ok: true, user: user.username, role: user.role }, { 'Set-Cookie': sessionCookie(token, SESSION_TTL_MS / 1000) });
     }
     if (p === '/api/logout' && method === 'POST') {
       return json(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0) });
     }
     if (p.startsWith('/assets/') && method === 'GET') {
       const name = path.basename(p);
-      const allowed = { 'sync.js': 'application/javascript; charset=utf-8', 'login.js': 'application/javascript; charset=utf-8' };
+      const JS = 'application/javascript; charset=utf-8';
+      const allowed = { 'sync.js': JS, 'login.js': JS, 'modulos.js': JS, 'usuarios.js': JS };
       if (!allowed[name] || p !== '/assets/' + name) return send(res, 404, 'Não encontrado');
       return send(res, 200, fs.readFileSync(path.join(ASSETS, name)), allowed[name]);
     }
 
     // ----- autenticados -----
-    const sess = getSession(req);
-    if (!sess) {
+    const me = await currentUser(req);
+    if (!me) {
       if (p.startsWith('/api/')) return json(res, 401, { error: 'Sessão expirada' });
       return redirect(res, BASE + '/login');
     }
+    const isAdmin = me.role === 'admin';
+    const sess = { uid: me.id, u: me.username };
 
-    if (p === '/') return redirect(res, BASE + '/declaracao');
-    if ((p === '/declaracao' || p === '/rotinas') && method === 'GET') {
+    // Depois do login o usuário escolhe o módulo.
+    if (p === '/') return redirect(res, BASE + '/modulos');
+    if ((p === '/modulos' || p === '/declaracao' || p === '/rotinas') && method === 'GET') {
       return send(res, 200, template(p.slice(1) + '.html'), 'text/html; charset=utf-8');
+    }
+    if (p === '/usuarios' && method === 'GET') {
+      if (!isAdmin) return redirect(res, BASE + '/modulos');
+      return send(res, 200, template('usuarios.html'), 'text/html; charset=utf-8');
+    }
+
+    if (p === '/api/me' && method === 'GET') return json(res, 200, publicUser(me));
+
+    // Cada pessoa troca a própria senha.
+    if (p === '/api/me/password' && method === 'POST') {
+      if (!csrfOk(req)) return json(res, 403, { error: 'Requisição inválida' });
+      const body = await readJson(req);
+      const key = 'pw|' + me.id;
+      if (throttled(key)) return json(res, 429, { error: 'Muitas tentativas. Aguarde 15 minutos.' });
+      const row = await db.getUserById(me.id);
+      if (!verifyPassword(String(body.current || ''), row.password_hash)) { failAttempt(key); return json(res, 400, { error: 'Senha atual incorreta' }); }
+      if (!validPassword(body.password)) return json(res, 400, { error: `A nova senha deve ter de ${MIN_PASSWORD} a 200 caracteres` });
+      await db.updateUser(me.id, { password_hash: hashPassword(body.password) });
+      attempts.delete(key);
+      return json(res, 200, { ok: true });
+    }
+
+    // ----- administração de usuários (somente admin) -----
+    if (p === '/api/users' || p.startsWith('/api/users/')) {
+      if (!isAdmin) return json(res, 403, { error: 'Acesso restrito ao administrador' });
+      if (p === '/api/users' && method === 'GET') return json(res, 200, { users: await db.listUsers(), me: me.id });
+      if (p === '/api/users' && method === 'POST') {
+        if (!csrfOk(req)) return json(res, 403, { error: 'Requisição inválida' });
+        const b = await readJson(req);
+        const username = String(b.username || '').trim().toLowerCase();
+        const name = String(b.name || '').trim().slice(0, 100);
+        const role = b.role === undefined ? 'funcionario' : b.role;
+        if (!USERNAME_RE.test(username)) return json(res, 400, { error: 'Usuário: 3 a 60 caracteres (letras minúsculas, números, ponto, hífen ou _)' });
+        if (!ROLES.includes(role)) return json(res, 400, { error: 'Nível inválido' });
+        if (!validPassword(b.password)) return json(res, 400, { error: `A senha deve ter de ${MIN_PASSWORD} a 200 caracteres` });
+        try { await db.createUser(username, hashPassword(b.password), role, name); }
+        catch (e) {
+          if (e.code === 'ER_DUP_ENTRY') return json(res, 409, { error: 'Já existe um usuário com esse nome' });
+          throw e;
+        }
+        return json(res, 201, { ok: true });
+      }
+      const um = p.match(/^\/api\/users\/(\d+)$/);
+      if (um && method === 'PATCH') {
+        if (!csrfOk(req)) return json(res, 403, { error: 'Requisição inválida' });
+        const id = Number(um[1]);
+        const target = await db.getUserById(id);
+        if (!target) return json(res, 404, { error: 'Usuário não encontrado' });
+        const b = await readJson(req);
+        const f = {};
+        if (b.name !== undefined) f.name = String(b.name).trim().slice(0, 100);
+        if (b.role !== undefined) { if (!ROLES.includes(b.role)) return json(res, 400, { error: 'Nível inválido' }); f.role = b.role; }
+        if (b.active !== undefined) f.active = !!b.active;
+        if (b.password !== undefined) {
+          if (!validPassword(b.password)) return json(res, 400, { error: `A senha deve ter de ${MIN_PASSWORD} a 200 caracteres` });
+          f.password_hash = hashPassword(b.password);
+        }
+        // Evita ficar sem administrador (ou trancar a si mesmo).
+        const losesAdmin = target.role === 'admin' && target.active &&
+          ((f.role !== undefined && f.role !== 'admin') || f.active === false);
+        if (losesAdmin) {
+          if (id === me.id) return json(res, 400, { error: 'Você não pode remover seu próprio acesso de administrador. Peça a outro administrador.' });
+          if (await db.countActiveAdmins() <= 1) return json(res, 400, { error: 'É preciso manter pelo menos um administrador ativo' });
+        }
+        await db.updateUser(id, f);
+        return json(res, 200, { ok: true });
+      }
+      return send(res, 404, 'Não encontrado');
+    }
+
+    // ----- cadastro de clientes atendidos (ambos os níveis consultam/gravam; só admin remove) -----
+    if (p === '/api/clientes' && method === 'GET') {
+      const q = String(url.searchParams.get('q') || '').trim().slice(0, 80);
+      if (q.length < 2) return json(res, 200, { clientes: [] });
+      const rows = await db.searchClientes(q);
+      return json(res, 200, { clientes: rows.map(c => ({ id: c.id, nome: c.nome, nasc: c.nasc, doc: c.doc, tel: c.tel, endereco: c.endereco, resp: c.resp })) });
+    }
+    if (p === '/api/clientes' && method === 'POST') {
+      if (!csrfOk(req)) return json(res, 403, { error: 'Requisição inválida' });
+      const b = await readJson(req);
+      const lim = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+      const c = { nome: lim(b.nome, 150), nasc: lim(b.nasc, 10), doc: lim(b.doc, 30), tel: lim(b.tel, 30), endereco: lim(b.endereco, 200), resp: lim(b.resp, 150) };
+      if (c.nome.length < 2) return json(res, 400, { error: 'Informe o nome do cliente' });
+      if (c.nasc && !/^\d{4}-\d{2}-\d{2}$/.test(c.nasc)) return json(res, 400, { error: 'Data de nascimento inválida' });
+      return json(res, 200, { ok: true, id: await db.saveCliente(c, me.id) });
+    }
+    const cm = p.match(/^\/api\/clientes\/(\d+)$/);
+    if (cm && method === 'DELETE') {
+      if (!csrfOk(req)) return json(res, 403, { error: 'Requisição inválida' });
+      if (!isAdmin) return json(res, 403, { error: 'Somente o administrador pode remover cadastros' });
+      return json(res, (await db.deleteCliente(Number(cm[1]))) ? 200 : 404, { ok: true });
     }
 
     if (p === '/api/store' && method === 'GET') {
-      return json(res, 200, { user: sess.u, items: await db.getAll() });
+      return json(res, 200, { user: me.username, name: me.name, role: me.role, items: await db.getAll() });
     }
+    // Backup completo: somente administrador.
     if (p === '/api/backup' && method === 'GET') {
+      if (!isAdmin) return json(res, 403, { error: 'Acesso restrito ao administrador' });
       const all = await db.getAll();
       const out = { exportedAt: new Date().toISOString(), items: Object.fromEntries(Object.entries(all).map(([k, r]) => [k, r.v])) };
       const stamp = new Date().toISOString().slice(0, 10);
@@ -271,7 +382,7 @@ function createApp(env = process.env) {
     if (!u || !pw) return;
     if (await db.countUsers() === 0) {
       if (pw.length < 10) throw new Error('ADMIN_PASSWORD deve ter pelo menos 10 caracteres');
-      await db.createUser(u, hashPassword(pw));
+      await db.createUser(u, hashPassword(pw), 'admin', 'Administrador');
       console.log(`[setup] usuário inicial "${u}" criado. Remova ADMIN_PASSWORD das variáveis de ambiente.`);
     }
   }

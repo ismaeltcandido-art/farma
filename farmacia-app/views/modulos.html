@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Escolher módulo – Farmácia Dr Trajano</title>
+<style>
+:root{--ink:#243b3d;--mut:#6b7f82;--line:#d9e3e4;--teal:#0b7a75;--teal-d:#0f4c5c;--bg:#f2f6f6;--bad:#d64545;--ok:#14653f}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;padding:6vh 16px 40px}
+header{text-align:center;margin-bottom:26px}
+h1{margin:0 0 4px;font-size:24px;color:var(--teal-d)}
+header p{margin:0;color:var(--mut);font-size:15px}
+.role{display:inline-block;margin-left:6px;padding:2px 9px;border-radius:999px;background:#d3eadf;color:var(--teal-d);font-size:12px;font-weight:600;vertical-align:middle}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;width:min(860px,100%)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 6px 24px rgba(15,76,92,.08);display:flex;flex-direction:column;gap:10px;color:inherit;text-decoration:none;transition:transform .12s,box-shadow .12s,border-color .12s}
+a.card:hover,a.card:focus-visible{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 10px 28px rgba(15,76,92,.14);outline:none}
+.card svg{width:40px;height:40px;color:var(--teal)}
+.card h2{margin:4px 0 0;font-size:20px;color:var(--teal-d)}
+.card p{margin:0;color:var(--mut);font-size:14px;line-height:1.45}
+.card .go{margin-top:auto;padding-top:8px;font-weight:600;color:var(--teal);font-size:14px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--ink);border-top:1px solid var(--line);margin-top:6px;padding-top:12px;cursor:pointer}
+.opt input{margin-top:2px;width:auto}
+.foot{margin-top:28px;display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:14px}
+.foot button{background:none;border:0;color:var(--teal-d);font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+#pw{display:none;margin-top:18px;width:min(380px,100%);background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+#pw h3{margin:0 0 6px;font-size:16px;color:var(--teal-d)}
+#pw label{display:block;font-size:13px;margin:10px 0 4px;color:var(--mut)}
+#pw input[type=password]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:15px}
+#pw .btns{display:flex;gap:8px;margin-top:14px}
+#pw .btns button{flex:1;padding:10px;border:0;border-radius:8px;font-size:14px;cursor:pointer;background:var(--teal);color:#fff}
+#pw .btns button.sec{background:#e4ecec;color:var(--ink)}
+#msg{min-height:18px;margin-top:10px;font-size:13px}
+#msg.err{color:var(--bad)}#msg.ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Farmácia Dr Trajano</h1>
+  <p>Olá, <b id="who">…</b><span class="role" id="role" hidden></span><br>Escolha o módulo que deseja acessar.</p>
+</header>
+
+<main class="grid" id="grid">
+  <a class="card" href="__BASE__/rotinas" id="c-rot">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/></svg>
+    <h2>Módulo Rotinas</h2>
+    <p>Temperatura e umidade, limpeza, resíduos infectantes, documentos e fiscalização.</p>
+    <span class="go">Acessar rotinas →</span>
+  </a>
+
+  <div class="card" id="c-decl" style="cursor:default">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+    <h2>Módulo Declarações</h2>
+    <p>Pressão, temperatura, aplicação de injetáveis e evolução da pressão.</p>
+    <label class="opt"><input type="checkbox" id="prev" checked> <span>Mostrar a prévia da declaração enquanto preencho</span></label>
+    <a class="go" href="__BASE__/declaracao" id="go-decl" style="text-decoration:none">Acessar declarações →</a>
+  </div>
+
+  <a class="card" href="__BASE__/usuarios" id="c-usr" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.6 3.1 2.3 3.5 5.2"/></svg>
+    <h2>Usuários</h2>
+    <p>Cadastrar funcionários, definir o nível de acesso e redefinir senhas.</p>
+    <span class="go">Gerenciar usuários →</span>
+  </a>
+</main>
+
+<div class="foot">
+  <button type="button" id="btn-pw">Alterar minha senha</button>
+  <button type="button" id="btn-out">Sair</button>
+</div>
+
+<form id="pw" autocomplete="off">
+  <h3>Alterar minha senha</h3>
+  <label for="p0">Senha atual</label><input type="password" id="p0" autocomplete="current-password" required>
+  <label for="p1">Nova senha (mínimo 8 caracteres)</label><input type="password" id="p1" autocomplete="new-password" minlength="8" required>
+  <label for="p2">Repita a nova senha</label><input type="password" id="p2" autocomplete="new-password" minlength="8" required>
+  <div class="btns"><button type="submit">Salvar</button><button type="button" class="sec" id="pw-x">Cancelar</button></div>
+  <div id="msg" role="alert"></div>
+</form>
+<script src="__BASE__/assets/modulos.js"></script>
+</body>
+</html>

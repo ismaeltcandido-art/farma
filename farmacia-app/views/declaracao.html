@@ -2,44 +2,107 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <script src="__BASE__/assets/sync.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Declaração de Serviço Farmacêutico</title>
 <style>
-:root{--ink:#243b3d;--mut:#6b7f82;--line:#d9e3e4;--teal:#0b7a75;--teal-d:#0f4c5c;--bg:#f2f6f6;--ok:#2e9e6b;--warn:#e0a21b;--bad:#d64545;--blue:#4a7fc9}
+/* ===== Farmavip · base visual compartilhada (Rotinas + Declarações) ===== */
+:root{
+ --ink:#17332e;--ink2:#41605a;--mut:#667d77;--line:#dbe4df;--line2:#e9efec;
+ --paper:#f3f6f3;--bg:#f3f6f3;--card:#fff;
+ --brand:#1f8f79;--brand-d:#0f5a4c;--teal:#1a7a68;--teal-d:#0f5a4c;--wash:#e7f3ee;
+ --plum:#7a1a4e;--plum-w:#f6e8f0;
+ --ok:#1f8a5b;--ok-w:#dff1e8;--warn:#b97300;--warn-w:#fcecc8;--bad:#c0392b;--bad-w:#fbe1de;--blue:#3b73b9;
+ --disp:"Bahnschrift","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+ --txt:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+ --r-card:16px;--r-ctl:10px;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
-.app{display:grid;grid-template-columns:400px 1fr;gap:20px;padding:20px;max-width:1300px;margin:0 auto;align-items:start}
-@media(max-width:920px){.app{grid-template-columns:1fr}}
-.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
-.panel h1{font-size:17px;margin:0 0 2px}
-.panel .sub{color:var(--mut);font-size:12.5px;margin:0 0 14px}
-.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
-.seg button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 4px;font-size:12.5px;cursor:pointer;color:var(--ink);line-height:1.25}
-.seg button.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
-fieldset{border:0;border-top:1px solid var(--line);margin:12px 0 0;padding:10px 0 0}
-legend{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);padding:0 6px 0 0;font-weight:600}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--txt);color:var(--ink);background:var(--paper);line-height:1.4}
+:focus-visible{outline:3px solid #6dbfaa;outline-offset:2px}
+button,input,select,textarea{font-family:inherit}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* barra superior: uma só navegação para o sistema inteiro */
+.bar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:center;flex:none}
+.brand img{height:34px;width:auto;display:block}
+.switch{display:flex;gap:4px;background:var(--wash);padding:4px;border-radius:14px}
+.switch a{display:flex;align-items:center;gap:9px;padding:9px 20px;border-radius:10px;font:600 15px var(--txt);color:var(--brand-d);text-decoration:none;white-space:nowrap}
+.switch a svg{width:20px;height:20px;flex:none}
+.switch a:hover{background:#d3eadf}
+.switch a[aria-current=page]{background:var(--brand-d);color:#fff}
+.bar-sp{flex:1}
+.bar-date{color:var(--mut);font-size:13px;white-space:nowrap}
+.btn-pres{display:flex;align-items:center;gap:8px;border:1.5px solid var(--plum);color:var(--plum);background:#fff;border-radius:12px;padding:9px 16px;font:600 14px var(--txt);cursor:pointer;white-space:nowrap}
+.btn-pres svg{width:18px;height:18px;flex:none}
+.btn-pres:hover{background:var(--plum-w)}
+body.pres .btn-pres{background:var(--plum);color:#fff}
+@media(max-width:760px){
+ .bar-in{gap:10px;padding:8px 12px;flex-wrap:wrap}
+ .bar-date{display:none}
+ .switch a{padding:8px 12px;font-size:14px}
+ .brand img{height:28px}
+ .btn-pres span{display:none}
+}
+
+/* botões e etiquetas */
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--wash);border-color:#bcd8cd}
+.btn.p{background:var(--brand-d);border-color:var(--brand-d);color:#fff}
+.btn.p:hover{background:#0b4a3e}
+.btn.s{background:#fff}
+.btn.del{background:#fff;color:var(--bad);border-color:#efc5c0}
+.btn.del:hover{background:var(--bad-w)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.ok:hover{background:#17724a}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.btn.big{font-size:18px;padding:16px 18px;border-radius:14px;width:100%}
+a.btn{text-decoration:none;display:inline-block}
+.chip{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.chip.ok{background:var(--ok-w);color:#14653f}.chip.pend{background:var(--warn-w);color:#7a4d00}.chip.bad{background:var(--bad-w);color:#9a2a1e}.chip.mut{background:#eaeeec;color:var(--mut)}
+label{display:block;font-size:12.5px;color:var(--ink2);margin:9px 0 3px;font-weight:600}
+input,select,textarea{width:100%;font-size:14px;padding:9px 10px;border:1px solid #c9d7d1;border-radius:var(--r-ctl);background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:3px solid #b5ded2;border-color:var(--brand)}
+input[type=checkbox]{width:auto}
+.hint{font-size:12px;color:var(--mut);margin-top:5px;line-height:1.4}
+
+/* ===== Declarações ===== */
+body{font-size:14px}
+.app{display:grid;grid-template-columns:380px minmax(0,1fr);gap:22px;padding:20px 20px 40px;max-width:1240px;margin:0 auto;align-items:start}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.panel{position:static!important;max-height:none!important}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:20px;position:sticky;top:78px;max-height:calc(100vh - 96px);overflow:auto}
+.panel h1{font:600 21px/1.2 var(--disp);margin:0 0 2px}
+.panel .sub{color:var(--mut);font-size:13px;margin:0 0 14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.seg button{display:flex;flex-direction:column;align-items:flex-start;gap:7px;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px 12px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;line-height:1.2}
+.seg button svg{width:22px;height:22px;color:var(--brand);flex:none}
+.seg button:hover{border-color:#a9d2c5;background:var(--wash)}
+.seg button.on{background:var(--brand-d);border-color:var(--brand-d);color:#fff}
+.seg button.on svg{color:#fff}
+fieldset{border:0;border-top:1px solid var(--line);margin:14px 0 0;padding:10px 0 0}
+legend{font:600 15px var(--disp);color:var(--brand-d);padding:0 8px 0 0}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-label{display:block;font-size:12px;color:var(--mut);margin:7px 0 3px}
-input,select,textarea{width:100%;font:inherit;font-size:14px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-input:focus,select:focus,textarea:focus{outline:2px solid #9fd3cf;border-color:var(--teal)}
 textarea{min-height:74px;resize:vertical}
-.hint{font-size:11.5px;color:var(--mut);margin-top:4px}
-.miss{background:#fff6e0;border:1px solid #f1d98c;color:#7a5a05;border-radius:8px;padding:8px 10px;font-size:12.5px;margin-top:12px}
-.ok{background:#e8f6ef;border-color:#b6e2cb;color:#1c6a47}
+.miss{background:var(--warn-w);border:1px solid #efd58a;color:#6f4700;border-radius:10px;padding:9px 12px;font-size:13px;margin-top:14px}
+.miss.ok{background:var(--ok-w);border-color:#b6e2cb;color:#14653f}
 .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.btn{border:0;border-radius:10px;padding:10px 14px;font-size:14px;cursor:pointer;font-weight:600}
-.btn.p{background:var(--teal-d);color:#fff}
-.btn.s{background:#e6eeee;color:var(--ink)}
+.btn.p{padding:11px 16px}
 details{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
-summary{cursor:pointer;font-size:13px;color:var(--teal-d);font-weight:600}
-.preview{display:flex;flex-direction:column;gap:18px;align-items:center;overflow-x:auto}
-/* folha A4 */
-.sheet{background:#fff;width:794px;min-height:1000px;padding:46px 52px 40px;border:1px solid var(--line);box-shadow:0 2px 14px rgba(20,50,50,.07);position:relative;display:flex;flex-direction:column}
+summary{cursor:pointer;font-size:14px;color:var(--brand-d);font-weight:600}
+.stage{min-width:0}
+.stagebar{position:sticky;top:58px;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--paper);padding:2px 0 12px}
+.stagebar .stt{font:600 17px var(--disp)}
+.preview{display:flex;flex-direction:column;gap:20px;align-items:center;overflow-x:auto;padding:2px 4px 24px}
+
+/* folha A4 (documento impresso) */
+.sheet{background:#fff;width:794px;min-height:1000px;padding:46px 52px 40px;border:1px solid var(--line);box-shadow:0 8px 28px rgba(15,60,50,.11);position:relative;display:flex;flex-direction:column;flex:none}
 .sheet .head h2{margin:0;font-size:22px;color:var(--ink)}
 .sheet .head p{margin:3px 0 0;font-size:13px}
-.sheet .head{border-bottom:2px solid var(--teal-d);padding-bottom:12px}
+.sheet .head{border-bottom:2px solid var(--brand-d);padding-bottom:12px}
 .sheet h3{text-align:center;font-size:21px;margin:26px 0 2px}
 .sheet .via{text-align:center;font-size:13px;margin:2px 0}
 .sheet .reg{text-align:center;font-size:11.5px;color:var(--mut);margin:2px 0 4px}
@@ -49,20 +112,20 @@ summary{cursor:pointer;font-size:13px;color:var(--teal-d);font-weight:600}
 .f .l{font-size:11.5px;color:var(--mut)}
 .f .v{font-size:14.5px;margin-top:1px}
 .f .v.b{font-weight:700}
-.sec{grid-column:1/-1;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);font-weight:700;border-bottom:1px solid var(--line);padding:14px 0 4px;margin-bottom:2px}
-.result{border:1px solid var(--line);border-radius:14px;background:#f7fbfb;padding:14px 18px;margin-top:16px}
+.sec{grid-column:1/-1;font-size:13px;color:var(--brand-d);font-weight:700;border-bottom:1px solid var(--line);padding:14px 0 4px;margin-bottom:2px}
+.result{border:1px solid var(--line);border-radius:14px;background:#f7fbf9;padding:14px 18px;margin-top:16px}
 .result .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
-.result .t{font-weight:700;color:var(--teal);font-size:15px}
+.result .t{font-weight:700;color:var(--brand-d);font-size:15px}
 .result .t small{display:block;font-weight:400;color:var(--mut);font-size:12px}
-.big{font-size:34px;font-weight:800;color:var(--teal);white-space:nowrap}
-.big span{font-size:13px;font-weight:400;color:var(--mut);margin-left:4px}
+.big{font:700 36px var(--disp);color:var(--brand-d);white-space:nowrap;font-variant-numeric:tabular-nums}
+.big span{font:400 13px var(--txt);color:var(--mut);margin-left:4px}
 .badge{display:inline-block;font-size:12px;font-weight:700;color:#fff;border-radius:99px;padding:3px 11px;margin-top:6px}
 .gauge{display:grid;grid-template-columns:78px 1fr 44px;align-items:center;gap:10px;margin-top:11px;font-size:13px}
 .gauge b{text-align:right}
 .track{position:relative;height:12px;border-radius:99px;overflow:visible}
 .pin{position:absolute;top:-4px;width:6px;height:20px;border-radius:3px;background:var(--ink);transform:translateX(-3px);box-shadow:0 0 0 2px #fff}
 .scale{grid-column:2;display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:-4px}
-.note{background:#f1f4f4;font-size:11.5px;padding:11px 14px;border-radius:6px;margin-top:16px;text-transform:uppercase;line-height:1.45}
+.note{background:#f1f4f2;font-size:11.5px;padding:11px 14px;border-radius:6px;margin-top:16px;text-transform:uppercase;line-height:1.45}
 .ref{font-size:12px;color:#40585b;line-height:1.45}
 .sign{margin-top:auto;padding-top:46px;text-align:center}
 .sign .ln{border-top:1px solid #9fb3b5;width:72%;margin:0 auto 8px}
@@ -72,40 +135,100 @@ summary{cursor:pointer;font-size:13px;color:var(--teal-d);font-weight:600}
 .verify{position:absolute;right:52px;bottom:40px;font-size:10px;color:var(--mut)}
 table.rd{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
 table.rd th{text-align:left;font-size:11px;color:var(--mut);font-weight:600;border-bottom:1px solid var(--line);padding:5px 6px}
-table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f2}
-.chip{display:inline-block;color:#fff;border-radius:99px;font-size:11px;font-weight:700;padding:1px 8px}
+table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f0}
+table.rd .chip{color:#fff;font-size:11px;padding:1px 8px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
-.stat{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#f7fbfb}
-.stat .l{font-size:11px;color:var(--mut)}.stat .v{font-size:17px;font-weight:700;color:var(--teal-d);margin-top:2px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#f7fbf9}
+.stat .l{font-size:11px;color:var(--mut)}.stat .v{font:700 18px var(--disp);color:var(--brand-d);margin-top:2px}
 .rl{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:6px 9px;margin-top:5px;font-size:13px}
-.rl button{border:0;background:#f3e3e3;color:#a33;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px}
+.rl button{border:0;background:var(--bad-w);color:#a33;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px}
 .foot{display:flex;align-items:center;gap:12px;margin-top:18px;padding-top:10px;border-top:1px dashed var(--line);font-size:10px;color:var(--mut);line-height:1.45}.foot b{color:var(--ink);font-size:11px}.foot svg{flex:none;border:1px solid var(--line);border-radius:4px}
+.sheet .wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font:700 58px/1.1 var(--disp);color:rgba(122,26,78,.09);transform:rotate(-24deg);text-align:center;z-index:2;text-transform:uppercase}
+
+/* ---- modo apresentação ---- */
+#pvwrap{display:none}
+body.pres{background:#eef2ef}
+body.pres #pvwrap{display:block}
+body.pres .panel,body.pres .stagebar{display:none}
+body.pres .app{grid-template-columns:minmax(0,1fr);max-width:1100px;padding-top:0}
+body.pres .sheet{zoom:1.12}
+.pv-hero{margin-top:18px;background:var(--brand-d);color:#fff;border-radius:20px;padding:26px 30px;display:grid;grid-template-columns:auto 1fr auto;gap:26px;align-items:center}
+.pv-logo{background:#fff;border-radius:14px;padding:12px 16px}
+.pv-logo img{height:50px;display:block}
+.pv-hero h1{margin:0;font:600 30px/1.1 var(--disp)}
+.pv-hero p{margin:6px 0 0;color:#cfe8df;font-size:14.5px;line-height:1.5}
+.pv-lic{text-align:right;border-left:1px solid rgba(255,255,255,.25);padding-left:26px;min-width:220px}
+.pv-lic b{display:block;font:600 22px var(--disp)}
+.pv-lic span{font-size:13px;color:#cfe8df}
+@media(max-width:900px){.pv-hero{grid-template-columns:1fr}.pv-lic{text-align:left;border:0;padding:0}}
+.pv-nav{position:sticky;top:58px;z-index:15;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:14px 0 18px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px}
+.pv-nav button,.pv-nav a{display:flex;align-items:center;gap:8px;border:0;background:none;border-radius:11px;padding:11px 14px;font:600 15px var(--txt);color:var(--ink2);cursor:pointer;text-decoration:none}
+.pv-nav button:hover,.pv-nav a:hover{background:var(--wash)}
+.pv-nav button.on{background:var(--brand-d);color:#fff}
+.pv-nav a.decl{background:var(--plum);color:#fff}.pv-nav a.decl:hover{background:#5f143c}
+.pv-nav .sp{flex:1}
+.pv-nav .exit{color:var(--mut);font-size:14px}
+.ribbon{background:var(--plum-w);border:1px solid #e3bfd2;color:#5c1239;border-radius:12px;padding:12px 16px;font-size:14.5px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+
+/* prévia opcional (só na tela; a impressão não é afetada) */
+@media screen{
+ body.nopreview:not(.pres) .stage{display:none}
+ body.nopreview:not(.pres) .app{grid-template-columns:minmax(0,680px);justify-content:center}
+ body.nopreview:not(.pres) .panel{position:static;max-height:none;overflow:visible}
+}
+.clilist{position:absolute;left:0;right:0;top:100%;z-index:40;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(15,60,50,.18);overflow:hidden;margin-top:2px}
+.clilist button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:9px 12px;font:14px var(--txt);cursor:pointer;border-bottom:1px solid var(--line)}
+.clilist button:last-child{border-bottom:0}
+.clilist button:hover,.clilist button:focus-visible{background:var(--wash)}
+.clilist small{display:block;color:var(--mut);font-size:12px}
+.cliaut{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px;line-height:1.35}
+.cliaut input{width:auto;margin-top:2px}
+.drivebar{position:fixed;right:14px;bottom:14px;z-index:99998;max-width:380px;background:#0f4c5c;color:#fff;border-radius:14px;padding:14px 16px;font:13.5px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.drivebar b{word-break:break-all}
+.drivebar .dbtn{display:inline-block;margin-top:10px;background:#fff;color:#0f4c5c;border-radius:8px;padding:7px 12px;font-weight:700;text-decoration:none}
+.drivebar .dx{position:absolute;top:6px;right:10px;background:none;border:0;color:#fff;font-size:18px;cursor:pointer}
 @page{size:A4;margin:0}
 @media print{
  body{background:#fff}
  .app{display:block;padding:0;max-width:none}
- .panel{display:none}
- .preview{display:block;overflow:visible}
- .sheet{box-shadow:none;border:0;width:210mm;min-height:297mm;page-break-after:always;break-after:page;margin:0}
+ .panel,.bar,.stagebar,#pvwrap,.noprint{display:none!important}
+ .stage,.preview{display:block;overflow:visible;padding:0}
+ .sheet{box-shadow:none;border:0;width:210mm;min-height:297mm;page-break-after:always;break-after:page;margin:0;zoom:1!important}
  .sheet:last-child{page-break-after:auto;break-after:auto}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
 </style>
 </head>
 <body>
+<header class="bar noprint">
+ <div class="bar-in">
+  <div class="brand"><img id="logo" alt="Farmavip Dr Trajano"></div>
+  <nav class="switch" aria-label="Seções do sistema">
+   <a id="navRot" href="rotinas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 13l2 2 4-4"/></svg>Rotinas</a>
+   <a id="navDecl" href="declaracao-farmaceutica.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Declarações</a>
+  </nav>
+  <div class="bar-sp"></div>
+  <div class="bar-date" id="bardate"></div>
+  <button class="btn-pres" id="prevBtn" type="button" style="border-color:var(--brand-d);color:var(--brand-d)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Ocultar prévia</span></button>
+  <button class="btn-pres" id="presBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8M12 16v5"/></svg><span>Modo apresentação</span></button>
+ </div>
+</header>
+<script>(function(){if(!/\.html?$/i.test(location.pathname)){document.getElementById('navRot').href='rotinas';document.getElementById('navDecl').href='declaracao'}})()</script>
 <div class="app">
  <div class="panel" id="panel">
-  <h1>Declaração de serviço farmacêutico</h1>
-  <p class="sub">Escolha o serviço, preencha e confira a prévia ao lado.</p>
+  <h1>Nova declaração</h1>
+  <p class="sub">Escolha o serviço, preencha os dados e confira a prévia ao lado.</p>
   <div class="seg" id="seg">
-   <button data-s="pa" class="on">Aferição de pressão</button>
-   <button data-s="temp">Aferição de temperatura</button>
-   <button data-s="inj">Aplicação de injetável</button>
-   <button data-s="evo">Evolução da pressão (gráfico)</button>
+   <button data-s="pa" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>Aferição de pressão</button>
+   <button data-s="temp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg>Aferição de temperatura</button>
+   <button data-s="inj"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 2 4 4M17 7l3-3M19 9 8.7 19.3a2.4 2.4 0 0 1-3.4 0l-.6-.6a2.4 2.4 0 0 1 0-3.4L15 5M9 11l4 4M5 19l-3 3M14 4l6 6"/></svg>Aplicação de injetável</button>
+   <button data-s="evo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>Evolução da pressão (gráfico)</button>
   </div>
 
   <fieldset><legend>Paciente</legend>
-   <label for="nome">Nome completo *</label><input id="nome" autocomplete="off">
+   <div style="position:relative"><label for="nome">Nome completo *</label><input id="nome" autocomplete="off" aria-autocomplete="list" aria-controls="cliList"><div id="cliList" class="clilist" role="listbox" hidden></div></div>
+   <div class="hint" id="cliMsg">Digite o nome (ou CPF/telefone) para buscar um cliente já atendido e preencher os dados.</div>
    <div class="row">
     <div><label for="nasc">Nascimento *</label><input id="nasc" type="date"></div>
     <div><label for="doc">CPF / documento</label><input id="doc" autocomplete="off"></div>
@@ -115,6 +238,8 @@ table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f2}
     <div><label for="end">Endereço</label><input id="end" autocomplete="off"></div>
    </div>
    <div id="respBox" style="display:none"><label for="resp">Responsável (paciente menor de 18 anos)</label><input id="resp" autocomplete="off"></div>
+   <label class="cliaut"><input type="checkbox" id="cliAut"> <span>O cliente <b>autorizou guardar o cadastro</b> (nome, nascimento, documento, telefone, endereço) para os próximos atendimentos. Os dados são gravados ao imprimir.</span></label>
+   <div class="actions" style="margin-top:8px"><button class="btn s" id="cliSave" type="button">Guardar cadastro agora</button><button class="btn s" id="cliDel" type="button" style="display:none">Remover cadastro</button></div>
   </fieldset>
 
   <fieldset><legend>Atendimento</legend>
@@ -179,6 +304,7 @@ table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f2}
   <fieldset id="fs-emit"><legend>Emissão</legend>
    <label for="vias">Vias a imprimir</label>
    <select id="vias"><option value="paciente">Via do paciente</option><option value="ambas">Paciente + estabelecimento</option><option value="estab">Via do estabelecimento</option></select>
+   <label class="cliaut"><input type="checkbox" id="driveOn" checked> <span>Salvar uma via no <b>Google Drive</b> ao imprimir (o sistema sugere o nome do arquivo e abre a pasta configurada).</span></label>
   </fieldset>
 
   <div id="miss" class="miss"></div>
@@ -195,6 +321,7 @@ table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f2}
     <div><label for="c_tel">Telefone</label><input id="c_tel"></div>
    </div>
    <label for="c_end">Endereço</label><input id="c_end">
+   <label for="c_drive">Pasta do Google Drive para as declarações (link)</label><input id="c_drive" placeholder="https://drive.google.com/drive/folders/...">
    <div class="row">
     <div><label for="c_rt">Farmacêutico</label><input id="c_rt"></div>
     <div><label for="c_crf">CRF (com UF)</label><input id="c_crf"></div>
@@ -211,7 +338,11 @@ table.rd td{padding:5px 6px;border-bottom:1px solid #edf2f2}
    <div class="hint">Fica salvo só neste navegador. Dados de pacientes só são guardados se você usar o histórico.</div>
   </details>
  </div>
- <div class="preview" id="preview"></div>
+ <div class="stage">
+  <div id="pvwrap" class="noprint"></div>
+  <div class="stagebar noprint" id="stagebar"><div class="stt">Prévia da declaração</div><div><button class="btn p" id="print2" type="button">Imprimir / salvar PDF</button></div></div>
+  <div class="preview" id="preview"></div>
+ </div>
 </div>
 
 <script>
@@ -1565,7 +1696,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let svc='pa',orientTouched=false,regId='';
 const newId=()=>{try{return crypto.randomUUID()}catch(e){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)})}};
-const CFG_DEFAULT={c_nome:'Farmavip Dr Trajano',c_cnpj:'09.254.774/0001-13',c_tel:'1934434199',c_end:'Dr Trajano de Barros Camargo, 750',c_rt:'Ismael Tarcísio Candido',c_crf:'CRF 27.465'};
+const CFG_DEFAULT={c_nome:'Farmavip Dr Trajano',c_cnpj:'09.254.774/0001-13',c_tel:'1934434199',c_end:'Dr Trajano de Barros Camargo, 750',c_rt:'Ismael Tarcísio Candido',c_crf:'CRF 27.465',c_drive:'https://drive.google.com/drive/folders/1qURKtaIodrd_x1oVE0Brbe6mnq2CjuFu'};
 const CFG_IDS=Object.keys(CFG_DEFAULT);
 function loadCfg(){let s={};try{s=JSON.parse(localStorage.getItem('farm_cfg')||'{}')}catch(e){}CFG_IDS.forEach(k=>$(k).value=s[k]||CFG_DEFAULT[k])}
 function saveCfg(){try{const o={};CFG_IDS.forEach(k=>o[k]=$(k).value);localStorage.setItem('farm_cfg',JSON.stringify(o))}catch(e){}}
@@ -1590,7 +1721,7 @@ const sigHTML=()=>(sigData&&$('sigOn').checked)?`<img src="${sigData}" alt="Assi
 try{hist=JSON.parse(localStorage.getItem('farm_hist')||'{}')||{}}catch(e){hist={};storeOk=false}
 function persist(){try{localStorage.setItem('farm_hist',JSON.stringify(hist));return true}catch(e){storeOk=false;return false}}
 const keyOf=(n,b)=>(n||'').trim().toLowerCase()+'|'+(b||'');
-function curRs(){const d=data(),h=hist[keyOf(d.nome,d.nasc)];return h?h.readings.slice().sort((a,b)=>a.t<b.t?-1:1):[]}
+function curRs(){if(demo)return demoRs();const d=data(),h=hist[keyOf(d.nome,d.nasc)];return h?h.readings.slice().sort((a,b)=>a.t<b.t?-1:1):[]}
 function addReading(nome,nasc,r){
   const k=keyOf(nome,nasc);hist[k]=hist[k]||{nome:nome.trim(),nasc:nasc,readings:[]};
   hist[k].nome=nome.trim();
@@ -1705,6 +1836,46 @@ function evoSheet(d,cfg){
    <div class="sign">${sigHTML()}<div class="ln"></div><div class="n">${esc(cfg.c_rt)} • ${esc(cfg.c_crf)}</div><div class="s">Assinatura e carimbo do farmacêutico responsável</div><div class="e">Emitido em ${emit}</div></div>
   </section>`;
 }
+
+/* ---------- modo apresentação ---------- */
+let pres=false,demo=false;
+const ROT=/\.html?$/i.test(location.pathname)?'rotinas.html':'rotinas';
+const fmtTel=t=>{const d=String(t||'').replace(/\D/g,'');return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:String(t||'')};
+const DEMO={nome:'Maria Exemplo da Silva',nasc:'1962-05-14',doc:'000.000.000-00',tel:'(00) 00000-0000',end:'Rua Exemplo, 100',sis:'128',dia:'82',fc:'74',braco:'Esquerdo',pos:'Sentado',tc:'36,6',tloc:'Axilar',equip:'Termômetro digital',med:'Medicamento de exemplo',dose:'1 ampola 2 mL',lote:'EX0000',val:'2027-12',via:'IM',presc:'Dr. Exemplo',cons:'CRM-SP 000000'};
+function demoRs(){
+  const z=n=>String(n).padStart(2,'0'),v=[[142,92,78],[138,90,80],[134,88,76],[130,86,74],[128,84,72],[126,82,74],[124,80,70],[122,80,72]],b=Date.now();
+  return v.map((x,i)=>{const t=new Date(b-(v.length-i)*7*86400000);return {id:'demo'+i,t:`${t.getFullYear()}-${z(t.getMonth()+1)}-${z(t.getDate())}T09:${z(10+i*3)}`,s:x[0],d:x[1],fc:String(x[2]),braco:'Esquerdo',pos:'Sentado'}});
+}
+function licInfo(){
+  try{const o=JSON.parse(localStorage.getItem('farm_rot')||'null');const d=o&&o.docs&&o.docs.find(x=>/licen[çc]a sanit/i.test(x.name)&&x.val);return d||null}catch(e){return null}
+}
+function setPres(on){
+  if(on===pres)return;
+  if(on){
+    const d=data();demo=!d.nome&&!(d.sis>0)&&!(d.tc>0)&&!d.med;
+    if(demo){Object.keys(DEMO).forEach(k=>{$(k).value=DEMO[k]});fillLocais();orientTouched=false}
+    pres=true;
+  }else{
+    pres=false;
+    if(demo){demo=false;$('novo').onclick()}
+  }
+  window.scrollTo(0,0);render();
+}
+function syncPres(){
+  document.body.classList.toggle('pres',pres);
+  $('presBtn').querySelector('span').textContent=pres?'Sair da apresentação':'Modo apresentação';
+  const w=$('pvwrap');
+  if(!pres){w.innerHTML='';return}
+  const cfg={};CFG_IDS.forEach(k=>cfg[k]=$(k).value);
+  const lic=licInfo();let licH='';
+  if(lic){const diff=Math.round((new Date(lic.val)-new Date())/86400000);licH=`<div class="pv-lic"><span>Licença sanitária</span><b>${diff<0?'Vencida em ':'Válida até '}${fmtDate(lic.val)}</b><span>${esc(lic.num||'')}</span></div>`}
+  const img=(logoData&&$('logoOn').checked)?`<div class="pv-logo"><img src="${logoData}" alt=""></div>`:'';
+  const sv=[['pa','Aferição de pressão'],['temp','Aferição de temperatura'],['inj','Aplicação de injetável'],['evo','Evolução da pressão']];
+  const tail=demo?`<div class="ribbon"><span><b>Modelo ilustrativo.</b> Os dados são fictícios e servem só para mostrar como a declaração é emitida. Para emitir uma declaração real, saia da apresentação e preencha os dados do paciente.</span></div>`
+    :(svc==='evo'?'':`<div class="ribbon"><span>Declaração com os dados preenchidos no formulário.</span><button class="btn p" data-pprint="1" type="button">Imprimir esta declaração</button></div>`);
+  w.innerHTML=`<section class="pv-hero">${img}<div><h1>${esc(cfg.c_nome)}</h1><p>CNPJ ${esc(cfg.c_cnpj)}<br>${esc(cfg.c_end)} – Tel. ${esc(fmtTel(cfg.c_tel))}<br>Farmacêutico responsável: ${esc(cfg.c_rt)}, ${esc(cfg.c_crf)}</p></div>${licH}</section>
+   <nav class="pv-nav" aria-label="Apresentação">${sv.map(x=>`<button class="${svc===x[0]?'on':''}" data-ps="${x[0]}" type="button">${x[1]}</button>`).join('')}<a class="decl" href="${ROT}#apresentacao">Rotinas e documentos</a></nav>${tail}`;
+}
 function render(){
   const d=data(),age=ageFrom(d.nasc,d.quando);
   $('respBox').style.display=(age!==null&&age<18)?'block':'none';
@@ -1719,6 +1890,8 @@ function render(){
   if(v!=='estab')out.push(sheet(d,'Via do paciente',cfg,age));
   if(v!=='paciente')out.push(sheet(d,'Via do estabelecimento',cfg,age));
   $('preview').innerHTML=out.join('');}
+  if(demo)document.querySelectorAll('#preview .sheet').forEach(sh=>sh.insertAdjacentHTML('afterbegin','<div class="wm">Modelo ilustrativo<br>dados fictícios</div>'));
+  syncPres();
   const m=missing(d),box=$('miss');
   box.className='miss'+(m.length?'':' ok');
   box.textContent=m.length?'Falta preencher: '+m.join(', ')+'.':'Tudo preenchido. Pronto para emitir.';
@@ -1798,8 +1971,133 @@ $('imp').onchange=e=>{
   fr.onload=()=>{try{const o=JSON.parse(fr.result);let n=0;Object.keys(o).forEach(k=>{if(!o[k]||!Array.isArray(o[k].readings))return;hist[k]=hist[k]||{nome:o[k].nome,nasc:o[k].nasc,readings:[]};o[k].readings.forEach(r=>{if(!hist[k].readings.some(x=>x.id===r.id)){hist[k].readings.push(r);n++}})});persist();refreshKnown();render();$('histMsg').textContent=n+' leituras importadas.'}catch(err){$('histMsg').textContent='Arquivo inválido.'}};
   fr.readAsText(f);e.target.value='';
 };
-loadCfg();fillLocais();refreshKnown();$('mt').value=nowLocal();$('quando').value=nowLocal();regId=newId();render();
+$('print2').onclick=()=>$('print').click();
+$('presBtn').onclick=()=>setPres(!pres);
+$('pvwrap').onclick=e=>{const b=e.target.closest('[data-ps]');if(b){setSvc(b.dataset.ps);return}if(e.target.closest('[data-pexit]')){setPres(false);return}if(e.target.closest('[data-pprint]'))$('print').click()};
+loadCfg();fillLocais();refreshKnown();$('mt').value=nowLocal();$('quando').value=nowLocal();regId=newId();
+$('logo').src=logoData||LOGO_DEFAULT;
+{const n=new Date(),W=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'],M=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];$('bardate').textContent=`${W[n.getDay()]}, ${n.getDate()} de ${M[n.getMonth()]}`}
+render();
+if(location.hash==='#apresentacao')setPres(true);
 }
+</script>
+<script>
+/* ===== Extras: prévia opcional, cadastro de clientes e via no Google Drive ===== */
+(function(){
+'use strict';
+var F=window.FARM||{user:'',role:'',base:''};
+var $=function(id){return document.getElementById(id)};
+var H={'Content-Type':'application/json','X-Requested-With':'fetch'};
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function fire(el){el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}
+
+/* ---- 1. Prévia: mostrar / ocultar (preferência por usuário, neste navegador) ---- */
+var pk='pref_preview_'+F.user;
+function setPreview(on,save){
+  document.body.classList.toggle('nopreview',!on);
+  $('prevBtn').querySelector('span').textContent=on?'Ocultar prévia':'Mostrar prévia';
+  $('prevBtn').setAttribute('aria-pressed',on?'true':'false');
+  if(save)lsSet(pk,on?'1':'0');
+}
+setPreview(lsGet(pk)!=='0',false);
+$('prevBtn').addEventListener('click',function(){setPreview(document.body.classList.contains('nopreview'),true)});
+
+/* ---- 2. Cadastro de clientes ---- */
+var cliId=null,timer=0,seqReq=0;
+function api(method,url,body){
+  return fetch(F.base+url,{method:method,headers:H,credentials:'same-origin',body:body?JSON.stringify(body):undefined})
+    .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {ok:r.ok,status:r.status,j:j}})});
+}
+function msg(t){$('cliMsg').textContent=t}
+function hideList(){$('cliList').hidden=true;$('cliList').innerHTML=''}
+function fmtNasc(n){return n&&/^\d{4}-\d{2}-\d{2}$/.test(n)?n.slice(8,10)+'/'+n.slice(5,7)+'/'+n.slice(0,4):''}
+function pick(c){
+  $('nome').value=c.nome;$('nasc').value=c.nasc||'';$('doc').value=c.doc||'';$('tel').value=c.tel||'';$('end').value=c.endereco||'';$('resp').value=c.resp||'';
+  ['nome','nasc','doc','tel','end','resp'].forEach(function(id){fire($(id))});
+  cliId=c.id;$('cliAut').checked=true;$('cliDel').style.display=F.role==='admin'?'':'none';
+  hideList();msg('Cliente já cadastrado: dados preenchidos. Confira e atualize se algo mudou; as alterações são gravadas ao imprimir.');
+}
+function search(q){
+  var my=++seqReq;
+  api('GET','/api/clientes?q='+encodeURIComponent(q)).then(function(r){
+    if(my!==seqReq||!r.ok)return;
+    var list=$('cliList');list.innerHTML='';
+    var cs=r.j.clientes||[];
+    if(!cs.length){hideList();return}
+    cs.forEach(function(c){
+      var b=document.createElement('button');b.type='button';b.setAttribute('role','option');
+      b.textContent=c.nome;
+      var sm=document.createElement('small');
+      sm.textContent=[fmtNasc(c.nasc)&&'nasc. '+fmtNasc(c.nasc),c.doc,c.tel].filter(Boolean).join(' • ');
+      b.appendChild(sm);b.onclick=function(){pick(c)};list.appendChild(b);
+    });
+    list.hidden=false;
+  });
+}
+$('nome').addEventListener('input',function(){
+  cliId=null;$('cliDel').style.display='none';
+  clearTimeout(timer);var q=this.value.trim();
+  if(q.length<2){hideList();return}
+  timer=setTimeout(function(){search(q)},250);
+});
+document.addEventListener('click',function(e){if(!e.target.closest('#cliList')&&e.target!==$('nome'))hideList()});
+$('nome').addEventListener('keydown',function(e){if(e.key==='Escape')hideList()});
+
+function savePatient(silent){
+  var c={nome:$('nome').value.trim(),nasc:$('nasc').value,doc:$('doc').value.trim(),tel:$('tel').value.trim(),endereco:$('end').value.trim(),resp:$('resp').value.trim()};
+  if(c.nome.length<2){if(!silent)msg('Informe o nome do cliente para guardar o cadastro.');return Promise.resolve(false)}
+  if(!$('cliAut').checked){if(!silent)msg('Marque a autorização do cliente para guardar o cadastro.');return Promise.resolve(false)}
+  return api('POST','/api/clientes',c).then(function(r){
+    if(r.ok){cliId=r.j.id;$('cliDel').style.display=F.role==='admin'?'':'none';msg('Cadastro do cliente guardado. No próximo atendimento é só digitar o nome.');return true}
+    msg(r.status===401?'Sessão expirada: entre novamente para guardar o cadastro.':(r.j.error||'Não foi possível guardar o cadastro.'));return false;
+  }).catch(function(){msg('Sem conexão: cadastro não guardado.');return false});
+}
+$('cliSave').addEventListener('click',function(){savePatient(false)});
+$('cliDel').addEventListener('click',function(){
+  if(!cliId||!window.confirm('Remover definitivamente o cadastro deste cliente do banco de dados? (O histórico de pressão e as declarações já emitidas não são afetados.)'))return;
+  api('DELETE','/api/clientes/'+cliId).then(function(r){
+    if(r.ok){cliId=null;$('cliAut').checked=false;$('cliDel').style.display='none';msg('Cadastro removido.')}else msg(r.j.error||'Não foi possível remover.');
+  });
+});
+$('novo').addEventListener('click',function(){cliId=null;$('cliAut').checked=false;$('cliDel').style.display='none';hideList();msg('Digite o nome (ou CPF/telefone) para buscar um cliente já atendido e preencher os dados.')});
+/* grava o cadastro ao imprimir (captura: roda antes do tratamento original do botão) */
+$('print').addEventListener('click',function(){if($('cliAut').checked)savePatient(true)},true);
+
+/* ---- 3. Via no Google Drive ---- */
+var dk='pref_drive_'+F.user;
+$('driveOn').checked=lsGet(dk)!=='0';
+$('driveOn').addEventListener('change',function(){lsSet(dk,this.checked?'1':'0')});
+var TIPO={pa:'PressaoArterial',temp:'Temperatura',inj:'Injetavel',evo:'EvolucaoPressao'};
+function slug(t,n){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,n||40)}
+function fileName(){
+  var on=document.querySelector('#seg button.on'),svc=on?on.dataset.s:'pa';
+  var reg=document.querySelector('#preview .sheet .reg'),m=reg&&reg.textContent.match(/N[ºo]\s*(\d{4})\/(\d{4})/);
+  var d=new Date(),pad=function(n){return String(n).padStart(2,'0')};
+  var num=m?m[1]+'-'+m[2]:d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  return ['Declaracao',TIPO[svc]||'Servico',num,slug($('nome').value)||'Paciente'].join('_');
+}
+var oldTitle=document.title,printing=false;
+window.addEventListener('beforeprint',function(){if(printing)return;printing=true;oldTitle=document.title;document.title=fileName()});
+window.addEventListener('afterprint',function(){
+  var name=document.title;document.title=oldTitle;printing=false;
+  if(!$('driveOn').checked)return;
+  var link=($('c_drive').value||'').trim();
+  if(!/^https:\/\/drive\.google\.com\//.test(link))link='';
+  var old=$('driveBar');if(old)old.remove();
+  var bar=document.createElement('div');bar.id='driveBar';bar.className='drivebar noprint';
+  var x=document.createElement('button');x.className='dx';x.type='button';x.textContent='×';x.setAttribute('aria-label','Fechar');x.onclick=function(){bar.remove()};
+  var p=document.createElement('div');
+  p.appendChild(document.createTextNode('Para guardar uma via no Google Drive: salve o PDF com o nome '));
+  var b=document.createElement('b');b.textContent=name+'.pdf';p.appendChild(b);
+  p.appendChild(document.createTextNode(' e solte o arquivo na pasta.'));
+  bar.appendChild(x);bar.appendChild(p);
+  if(link){var a=document.createElement('a');a.className='dbtn';a.href=link;a.target='_blank';a.rel='noopener';a.textContent='Abrir pasta do Drive';bar.appendChild(a)}
+  else{var h=document.createElement('div');h.style.marginTop='8px';h.textContent='Cole o link da pasta em "Dados do estabelecimento".';bar.appendChild(h)}
+  document.body.appendChild(bar);
+  setTimeout(function(){if(bar.parentNode)bar.remove()},90000);
+});
+})();
 </script>
 </body>
 </html>
